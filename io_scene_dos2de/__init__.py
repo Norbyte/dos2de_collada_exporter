@@ -1792,6 +1792,9 @@ class DIVINITYEXPORTER_OT_import_collada(Operator, ImportHelper):
 
     filter_glob: StringProperty(default="*.dae;*.gr2", options={"HIDDEN"})
 
+    files: CollectionProperty(type=bpy.types.OperatorFileListElement)
+    directory: StringProperty()
+
     def fixup_bones(self, context):
         for obj in context.scene.objects:
             if obj.type == "ARMATURE" and obj.select_get():
@@ -1814,35 +1817,46 @@ class DIVINITYEXPORTER_OT_import_collada(Operator, ImportHelper):
             current_operator = None
 
     def really_execute(self, context):
-        input_path = Path(self.properties.filepath)
-        tempfile_path = None
+        directory = self.directory
 
-        if input_path.suffix.lower() == '.gr2':
-            addon_prefs = get_prefs(context)
-            divine = DivineInvoker(addon_prefs, None)
-            temp = tempfile.NamedTemporaryFile(delete=False)
-            temp.close()
-            tempfile_path = Path(temp.name)
-            collada_path = tempfile_path
-            if not divine.gr2_to_dae(str(input_path), str(collada_path)):
-                return{'CANCELLED'}
-        else:
-            collada_path = input_path
+        for f in self.files:
+            input_path = Path(os.path.join(directory, f.name))
+            tempfile_path = None
 
-        if bpy.app.version >= (3, 4, 0):
-            bpy.ops.wm.collada_import(filepath=str(collada_path), custom_normals=True, fix_orientation=True)
-        else:
-            bpy.ops.wm.collada_import(filepath=str(collada_path), fix_orientation=True)
+            if input_path.suffix.lower() == '.gr2':
+                addon_prefs = get_prefs(context)
+                divine = DivineInvoker(addon_prefs, None)
+                temp = tempfile.NamedTemporaryFile(delete=False)
+                temp.close()
+                tempfile_path = Path(temp.name)
+                collada_path = tempfile_path
+                if not divine.gr2_to_dae(str(input_path), str(collada_path)):
+                    return{'CANCELLED'}
+            else:
+                collada_path = input_path
 
-        meta_loader = ColladaMetadataLoader()
-        meta_loader.load(context, str(collada_path))
-        self.fixup_bones(context)
+            if bpy.app.version >= (3, 4, 0):
+                bpy.ops.wm.collada_import(filepath=str(collada_path), custom_normals=True, fix_orientation=True)
+            else:
+                bpy.ops.wm.collada_import(filepath=str(collada_path), fix_orientation=True)
 
-        if tempfile_path is not None:
-            tempfile_path.unlink()
+            meta_loader = ColladaMetadataLoader()
+            meta_loader.load(context, str(collada_path))
+            self.fixup_bones(context)
 
-        report("Import completed successfully.", "INFO")
-        return{'FINISHED'}
+            if tempfile_path is not None:
+                tempfile_path.unlink()
+            
+            imported = context.selected_objects
+            collection = bpy.data.collections.new(os.path.splitext(f['name'])[0])
+            bpy.context.scene.collection.children.link(collection)
+            for f in imported:
+                for parent in f.users_collection:
+                        parent.objects.unlink(f)
+                collection.objects.link(f)
+
+            report("Import completed successfully.", "INFO")
+        return {'FINISHED'}
 
 def export_menu_func(self, context):
     self.layout.operator(DIVINITYEXPORTER_OT_export_collada.bl_idname, text="DOS2/BG3 Collada (.dae, .gr2)")
