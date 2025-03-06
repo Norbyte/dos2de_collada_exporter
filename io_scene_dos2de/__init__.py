@@ -1253,7 +1253,6 @@ class DIVINITYEXPORTER_OT_export_collada(Operator, ExportHelper):
         # JATO: If Apply Modifiers is NOT selected we remove the modifiers before they are evaluated
         if not self.use_mesh_modifiers:
             for modifier in modifiers:
-                print(modifier, " removed")
                 obj.modifiers.remove(modifier)
 
         # JATO: If Apply Shapekeys is NOT selected we remove the shapekeys before they are evaluated
