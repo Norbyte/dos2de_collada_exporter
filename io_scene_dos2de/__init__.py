@@ -609,8 +609,31 @@ class DIVINITYEXPORTER_OT_export_collada(Operator, ExportHelper):
     log_message: StringProperty(options={"HIDDEN"})
 
     def update_filepath(self, context):
+
+        # JATO: This might be dumb
+        addon_prefs = get_prefs(context)
+        divine = DivineInvoker(addon_prefs, self.divine_settings)
+        if divine.check_lslib() and addon_prefs.gr2_default_enabled:
+            self.filename_ext = ".GR2"
+
+        # JATO: Get the parent collection of the active object
+        def get_active_collection_name(obj):
+            for collection in bpy.data.collections:
+                if obj.name in collection.objects:
+                    return collection.name
+            active_collection = bpy.context.view_layer.active_layer_collection.collection
+            if active_collection is not None:
+                return active_collection.name
+            return None
+
+        obj = bpy.context.active_object
+        active_collection_name = get_active_collection_name(obj)
+
         if self.directory == "":
             self.directory = os.path.dirname(bpy.data.filepath)
+
+        if active_collection_name != None:
+            self.filepath = bpy.path.ensure_ext("{}\\{}".format(self.directory, active_collection_name, ".blend", ""), self.filename_ext)
 
         if self.filepath == "":
             self.filepath = bpy.path.ensure_ext("{}\\{}".format(self.directory, str.replace(bpy.path.basename(bpy.data.filepath), ".blend", "")), self.filename_ext)
@@ -752,14 +775,13 @@ class DIVINITYEXPORTER_OT_export_collada(Operator, ExportHelper):
         )
     use_mesh_modifiers: BoolProperty(
         name="Apply Modifiers",
-        description="Apply modifiers to mesh objects (on a copy!)",
+        description="Apply modifiers to mesh objects (does not apply Armature modifier)",
         default=True
         )
-    use_exclude_armature_modifier: BoolProperty(
-        name="Exclude Armature Modifier",
-        description="Exclude the armature modifier when applying modifiers "
-                      "(otherwise animation will be applied on top of the last pose)",
-        default=True
+    use_apply_pose_to_armature: BoolProperty(
+        name="Apply Pose to Armature",
+        description="Apply the current pose to the armature as a new Rest Pose",
+        default=False
         )
     use_normalize_vert_groups: BoolProperty(
         name="Normalize Vertex Groups",
@@ -767,10 +789,17 @@ class DIVINITYEXPORTER_OT_export_collada(Operator, ExportHelper):
         default=True
         )
     use_rest_pose: BoolProperty(
-        name="Use Rest Pose",
-        description="Revert any armatures to their rest poses when exporting (on the copy only)",
+        name="Use Rest Pose on Mesh",
+        description="Ignore pose from the Armature modifier on exported meshes",
         default=True
         )
+
+    use_apply_shapekeys: BoolProperty(
+        name="Apply Shapekeys",
+        description="Apply shapekey transformation as visible within the 3D viewport",
+        default=True
+        )
+
     use_tangent: BoolProperty(
         name="Export Tangents",
         description="Export Tangent and Binormal arrays (for normalmapping)",
@@ -778,7 +807,7 @@ class DIVINITYEXPORTER_OT_export_collada(Operator, ExportHelper):
         )
     use_triangles: BoolProperty(
         name="Triangulate",
-        description="Export Triangles instead of Polygons",
+        description="Convert all mesh faces to triangles",
         default=True
         )
 
@@ -945,26 +974,29 @@ class DIVINITYEXPORTER_OT_export_collada(Operator, ExportHelper):
         box = layout.box()
         box.prop(self, "auto_name")
         box.prop(self, "yup_enabled")
-       
+
+        box = layout.box()
+        box.prop(self, "use_active_layers")
+        box.prop(self, "use_export_visible")
+        box.prop(self, "use_export_selected")
+
+        box = layout.box()
+        box.prop(self, "use_apply_shapekeys")
+        box.prop(self, "use_mesh_modifiers")
+        box.prop
+
+        box = layout.box()
+        box.prop(self, "use_apply_pose_to_armature")
+        box.prop(self, "use_rest_pose")
+
         row = layout.row(align=True)
-        row.prop(self, "use_active_layers")
+        row.prop(self, "use_normalize_vert_groups")
+        
+        row = layout.row(align=True)
         row.prop(self, "use_tangent")
 
         row = layout.row(align=True)
-        row.prop(self, "use_export_visible")
         row.prop(self, "use_triangles")
-       
-        row = layout.row(align=True)
-        row.prop(self, "use_export_selected")
-        row.prop(self, "use_mesh_modifiers")
-       
-        row = layout.row(align=True)
-        row.prop(self, "use_exclude_armature_modifier")
-        row.prop(self, "use_normalize_vert_groups")
-
-        row = layout.row(align=True)
-        row.prop(self, "use_rest_pose")
-        row.label(text="")
 
         box = layout.box()
 
@@ -1206,31 +1238,46 @@ class DIVINITYEXPORTER_OT_export_collada(Operator, ExportHelper):
         self.transform_apply(obj, location=True, rotation=True, scale=True)
 
         modifiers = [mod for mod in obj.modifiers if mod.type != 'ARMATURE']
-        if len(modifiers) == 0:
+        # JATO: We should always proceed to get evaluated mesh with shapekeys, modifiers, and poses... right? So we filter for mesh object type
+        # if len(modifiers) == 0:
+        #     return
+        if obj.type not in {'MESH'}:
             return
-        
+
         trace(f"    - Apply modifiers on '{obj.name}'")
         if self.use_rest_pose:
             armature_poses = {arm.name: arm.pose_position for arm in bpy.data.armatures}
             for arm in bpy.data.armatures:
                 arm.pose_position = "REST"
 
+        # JATO: If Apply Modifiers is NOT selected we remove the modifiers before they are evaluated
         if not self.use_mesh_modifiers:
             for modifier in modifiers:
+                print(modifier, " removed")
                 obj.modifiers.remove(modifier)
+
+        # JATO: If Apply Shapekeys is NOT selected we remove the shapekeys before they are evaluated
+        if not self.use_apply_shapekeys:
+            if obj.data.shape_keys:
+                shape_keys = obj.data.shape_keys
+                for i in range(len(shape_keys.key_blocks) -1, -1, -1):
+                    bpy.data.shape_keys["ShapeKeys"].key_blocks.remove(shape_keys.key_blocks[i])
 
         old_mesh = obj.data
         dg = bpy.context.evaluated_depsgraph_get()
-        mesh = obj.to_mesh(preserve_all_data_layers=True, depsgraph=dg).copy()
+        object_eval = obj.evaluated_get(dg)
+        # JATO: The commented line does not appear to get the evaluated mesh. Maybe I'm missing something, but line below should fix
+        #mesh = obj.to_mesh(preserve_all_data_layers=True, depsgraph=dg).copy()
+        mesh = bpy.data.meshes.new_from_object(object_eval)
 
         # Reset poses
         if self.use_rest_pose:
             for arm in bpy.data.armatures.values():
                 arm.pose_position = armature_poses[arm.name]
 
-        if self.use_mesh_modifiers:
-            for modifier in modifiers:
-                obj.modifiers.remove(modifier)
+        # JATO: Modifiers besides armature may not affect anything but always remove them just in case
+        for modifier in modifiers:
+            obj.modifiers.remove(modifier)
         
         obj.data = mesh
         bpy.data.meshes.remove(old_mesh)
@@ -1252,13 +1299,13 @@ class DIVINITYEXPORTER_OT_export_collada(Operator, ExportHelper):
         trace(f" - Prepare '{orig.name}' -> '{obj.name}")
 
         if obj.type == "ARMATURE":
-            if self.use_exclude_armature_modifier:
+            if self.use_apply_pose_to_armature:
                 self.pose_apply(context, obj)
             elif self.use_rest_pose:
                 d = getattr(obj, "data", None)
                 if d is not None:
                     d.pose_position = "REST"
-        
+
         if obj.type == "MESH" and obj.parent is not None:
             self.reparent_object(copies, orig, obj)
 
@@ -1277,7 +1324,7 @@ class DIVINITYEXPORTER_OT_export_collada(Operator, ExportHelper):
         
         if self.yup_enabled == "ROTATE" and self.objects_to_export.is_root(orig):
             self.apply_yup_transform(obj)
-        
+
         self.apply_modifiers(obj)
 
         if obj.type == "MESH" and obj.vertex_groups:
