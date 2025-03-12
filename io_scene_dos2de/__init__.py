@@ -1269,14 +1269,21 @@ class DIVINITYEXPORTER_OT_export_collada(Operator, ExportHelper):
         #mesh = obj.to_mesh(preserve_all_data_layers=True, depsgraph=dg).copy()
         mesh = bpy.data.meshes.new_from_object(object_eval)
 
+        # JATO: Copy over ls_properties manually. mesh.ls_properties is read-only (?) so we do this
+        for ls_props in old_mesh.ls_properties.keys():
+            mesh.ls_properties[ls_props]=old_mesh.ls_properties[ls_props]
+
         # Reset poses
         if self.use_rest_pose:
             for arm in bpy.data.armatures.values():
                 arm.pose_position = armature_poses[arm.name]
 
-        # JATO: Modifiers besides armature may not affect anything but always remove them just in case
-        for modifier in modifiers:
-            obj.modifiers.remove(modifier)
+        '''
+        # JATO: Commented this out because it causes a reference error when exporting without modifiers.
+        This will leave modifiers on the object but as far as I can tell they're not evaluated so it doesn't matter
+        '''
+        #for modifier in modifiers:
+            #obj.modifiers.remove(modifier)
         
         obj.data = mesh
         bpy.data.meshes.remove(old_mesh)
