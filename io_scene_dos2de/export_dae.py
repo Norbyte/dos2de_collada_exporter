@@ -181,7 +181,7 @@ class DaeExporter:
         armature_poses = None
         armature_modifier_state = None
         
-        if(self.config["use_exclude_armature_modifier"]):
+        if(self.config["use_apply_pose_to_armature"]):
             armature_modifiers = [i for i in node.modifiers if i.type == "ARMATURE"]
             if len(armature_modifiers) > 0:
                 armature_modifier = armature_modifiers[0]#node.modifiers.get("Armature")
