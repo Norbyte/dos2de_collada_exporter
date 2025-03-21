@@ -169,11 +169,11 @@ class DIVINITYEXPORTER_AddonPreferences(AddonPreferences):
 
 
 def export_menu_func(self, context):
-    self.layout.operator(DIVINITYEXPORTER_OT_export_collada.bl_idname, text="(DEPRECATED) DOS2/BG3 Collada (.dae, .gr2)")
+    self.layout.operator(operators_dae.DIVINITYEXPORTER_OT_export_collada.bl_idname, text="(DEPRECATED) DOS2/BG3 Collada (.dae, .gr2)")
     #self.layout.operator(DIVINITYEXPORTER_OT_export_gr2.bl_idname, text="DOS2/BG3 Granny (.gr2)")
 
 def import_menu_func(self, context):
-    self.layout.operator(DIVINITYEXPORTER_OT_import_collada.bl_idname, text="(DEPRECATED) DOS2/BG3 Collada (.dae, .gr2)")
+    self.layout.operator(operators_dae.DIVINITYEXPORTER_OT_import_collada.bl_idname, text="(DEPRECATED) DOS2/BG3 Collada (.dae, .gr2)")
     #self.layout.operator(DIVINITYEXPORTER_OT_impor_gr2.bl_idname, text="DOS2/BG3 Granny (.gr2)")
 
 
