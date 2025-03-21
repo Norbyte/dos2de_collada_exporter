@@ -1,4 +1,4 @@
-
+from . import helpers
 
 gltf_ext_name = "EXT_lslib_profile"
 LSLIB_GLTF_METADATA_VERSION = 3
@@ -69,10 +69,10 @@ class glTF2ImportUserExtension:
             ls_props.metadata_version = meta_version
             self.scene_ext = ext
             if meta_version < LSLIB_GLTF_METADATA_VERSION:
-                report("GLTF file was exported with a too old LSLib version, important metadata might be missing! Please upgrade your LSLib!", "ERROR")
+                helpers.report("GLTF file was exported with a too old LSLib version, important metadata might be missing! Please upgrade your LSLib!", "ERROR")
 
             if meta_version > LSLIB_GLTF_METADATA_VERSION:
-                report("The Blender exporter plugin is too old for this LSLib version, please upgrade your exporter plugin!", "ERROR")
+                helpers.report("The Blender exporter plugin is too old for this LSLib version, please upgrade your exporter plugin!", "ERROR")
 
 
     def gather_import_scene_after_nodes_hook(self, gltf_scene, blender_scene, gltf):

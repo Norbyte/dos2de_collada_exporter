@@ -24,15 +24,12 @@ This script is an exporter to the Khronos Collada file format.
 http://www.khronos.org/collada/
 """
 
-import os
 import time
 import math
 import re
-import shutil
 import bpy
 import bmesh
 from mathutils import Vector, Matrix
-from bpy_extras import node_shader_utils
 
 # According to collada spec, order matters
 S_ASSET = 0
