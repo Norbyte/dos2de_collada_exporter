@@ -19,6 +19,10 @@ if "bpy" in locals():
     import importlib
     if "export_dae" in locals():
         importlib.reload(export_dae) # noqa
+    if "gltf" in locals():
+        importlib.reload(gltf) # noqa
+    if "properties" in locals():
+        importlib.reload(properties) # noqa
 
 from pathlib import Path
 import tempfile
@@ -35,7 +39,7 @@ from bpy_extras.io_utils import ExportHelper, ImportHelper
 from math import radians, degrees
 from mathutils import Euler, Matrix
 
-from . import export_dae
+from . import export_dae, gltf, properties
 
 bl_info = {
     "name": "DOS2/BG3 Collada Exporter",
@@ -57,15 +61,6 @@ gr2_extra_flags = (
     ("CLOTH", "Cloth", "The mesh has vertex painting for use with Divinity's cloth system"),
     ("RIGID", "Rigid", "For meshes lacking an armature modifier. Typically used for weapons"),
     ("RIGIDCLOTH", "Rigid&Cloth", "For meshes lacking an armature modifier that also contain cloth physics. Typically used for weapons")
-)
-
-game_versions = (
-    ("dos", "DOS", "Divinity: Original Sin"),
-    ("dosee", "DOS: EE", "Divinity: Original Sin - Enhanced Edition"),
-    ("dos2", "DOS 2", "Divinity: Original Sin 2"),
-    ("dos2de", "DOS 2: DE", "Divinity: Original Sin 2 - Definitive Edition"),
-    ("bg3", "BG 3", "Baldur's Gate 3"),
-    ("unset", "Unset", "Unset")
 )
 
 current_operator = None
@@ -229,7 +224,7 @@ class GR2_ExportSettings(PropertyGroup):
 
 class Divine_ExportSettings(PropertyGroup):
     """Divine GR2 Conversion Settings"""
-    gr2_settings: bpy.props.PointerProperty(
+    gr2_settings: PointerProperty(
         type=GR2_ExportSettings,
         name="GR2 Export Options"
     )
@@ -237,7 +232,7 @@ class Divine_ExportSettings(PropertyGroup):
     game: EnumProperty(
         name="Game",
         description="The target game. Currently determines the model format type",
-        items=game_versions,
+        items=properties.game_versions,
         default=("dos2de")
     )
 
@@ -703,7 +698,7 @@ class DIVINITYEXPORTER_OT_export_collada(Operator, ExportHelper):
         options={"HIDDEN"}
     )
 
-    divine_settings: bpy.props.PointerProperty(
+    divine_settings: PointerProperty(
         type=Divine_ExportSettings,
         name="GR2 Settings"
     )
@@ -1469,158 +1464,6 @@ addon_keymaps = []
 
 added_export_options = False
 
-class LSMeshProperties(PropertyGroup):
-    rigid: BoolProperty(
-        name="Rigid",
-        default = False
-        )
-    cloth: BoolProperty(
-        name="Cloth",
-        default = False
-        )
-    mesh_proxy: BoolProperty(
-        name="Mesh Proxy",
-        default = False
-        )
-    proxy: BoolProperty(
-        name="Proxy Geometry",
-        default = False
-        )
-    spring: BoolProperty(
-        name="Spring",
-        default = False
-        )
-    occluder: BoolProperty(
-        name="Occluder",
-        default = False
-        )
-    impostor: BoolProperty(
-        name="Impostor",
-        default = False
-        )
-    cloth_physics: BoolProperty(
-        name="Cloth Physics",
-        default = False
-        )
-    cloth_flag1: BoolProperty(
-        name="Cloth Flag 1",
-        default = False
-        )
-    cloth_flag2: BoolProperty(
-        name="Cloth Flag 2",
-        default = False
-        )
-    cloth_flag4: BoolProperty(
-        name="Cloth Flag 4",
-        default = False
-        )
-    export_order: IntProperty(
-        name="Export Order",
-        min = 0,
-        max = 100,
-        default = 0
-        )
-    lod: IntProperty(
-        name="LOD Level",
-        description="Lower LOD value = more detailed mesh",
-        min = 0,
-        max = 10,
-        default = 0
-        )
-    lod_distance: FloatProperty(
-        name="LOD Distance",
-        description="Distance (in meters) after which the next LOD level is displayed",
-        min = 0.0,
-        default = 0.0
-        )
-
-class LSArmatureProperties(PropertyGroup):
-    skeleton_resource_id: StringProperty(
-        name="Skeleton Resource UUID",
-        default = ""
-        )
-
-class LSBoneProperties(PropertyGroup):
-    export_order: IntProperty(
-        name="Export Order",
-        description="Index of bone in the exported .GR2 file; must match bone order of the reference skeleton",
-        default = 0
-        )
-
-class LSSceneProperties(PropertyGroup):
-    game: EnumProperty(
-        name="Game",
-        description="The target game. Currently determines the model format type",
-        items=game_versions,
-        default=("bg3")
-    )
-    metadata_version: IntProperty(
-        name="Metadata Version",
-        options={"HIDDEN"},
-        default=0
-    )
-
-class OBJECT_PT_LSPropertyPanel(Panel):
-    bl_label = "BG3 Settings"
-    bl_idname = "OBJECT_PT_ls_property_panel"
-    bl_space_type = 'PROPERTIES'
-    bl_region_type = 'WINDOW'
-    bl_context = "object"
-    
-    def draw(self, context):
-        layout = self.layout
-        if context.active_object.type == "MESH":
-            props = context.active_object.data.ls_properties
-
-            box = layout.box()
-            box.label(text="Mesh Type")
-
-            row = box.grid_flow()
-            row.prop(props, "rigid")
-            row.prop(props, "cloth")
-            row.prop(props, "mesh_proxy")
-            row.prop(props, "proxy")
-            row.prop(props, "spring")
-            row.prop(props, "occluder")
-            row.prop(props, "impostor")
-            row.prop(props, "cloth_physics")
-            row.prop(props, "cloth_flag1")
-            row.prop(props, "cloth_flag2")
-            row.prop(props, "cloth_flag4")
-
-            layout.prop(props, "lod")
-            layout.prop(props, "lod_distance")
-            layout.prop(props, "export_order")
-        elif context.active_object.type == "ARMATURE":
-            props = context.active_object.data.ls_properties
-            layout.prop(props, "skeleton_resource_id")
-
-
-class BONE_PT_LSPropertyPanel(Panel):
-    bl_label = "DOS2/BG3 Settings"
-    bl_idname = "BONE_PT_ls_property_panel"
-    bl_space_type = 'PROPERTIES'
-    bl_region_type = 'WINDOW'
-    bl_context = "bone"
-    
-    def draw(self, context):
-        layout = self.layout
-        if context.active_bone is not None:
-            props = context.active_bone.ls_properties
-            layout.prop(props, "export_order")
-
-
-class SCENE_PT_LSPropertyPanel(Panel):
-    bl_label = "DOS2/BG3 Settings"
-    bl_idname = "SCENE_PT_ls_property_panel"
-    bl_space_type = 'PROPERTIES'
-    bl_region_type = 'WINDOW'
-    bl_context = "scene"
-    
-    def draw(self, context):
-        layout = self.layout
-        props = context.scene.ls_properties
-        layout.prop(props, "game")
 
 
 
@@ -1845,118 +1688,17 @@ class DIVINITYEXPORTER_OT_import_collada(Operator, ImportHelper):
         return{'FINISHED'}
 
 def export_menu_func(self, context):
-    self.layout.operator(DIVINITYEXPORTER_OT_export_collada.bl_idname, text="DOS2/BG3 Collada (.dae, .gr2)")
+    self.layout.operator(DIVINITYEXPORTER_OT_export_collada.bl_idname, text="(DEPRECATED) DOS2/BG3 Collada (.dae, .gr2)")
+    #self.layout.operator(DIVINITYEXPORTER_OT_export_gr2.bl_idname, text="DOS2/BG3 Granny (.gr2)")
 
 def import_menu_func(self, context):
-    self.layout.operator(DIVINITYEXPORTER_OT_import_collada.bl_idname, text="DOS2/BG3 Collada (.dae, .gr2)")
+    self.layout.operator(DIVINITYEXPORTER_OT_import_collada.bl_idname, text="(DEPRECATED) DOS2/BG3 Collada (.dae, .gr2)")
+    #self.layout.operator(DIVINITYEXPORTER_OT_impor_gr2.bl_idname, text="DOS2/BG3 Granny (.gr2)")
 
 
-gltf_ext_name = "EXT_lslib_profile"
-
-
-class glTF2ExportUserExtension:
-
-    def __init__(self):
-        # We need to wait until we create the gltf2UserExtension to import the gltf2 modules
-        # Otherwise, it may fail because the gltf2 may not be loaded yet
-        from io_scene_gltf2.io.com.gltf2_io_extensions import Extension
-        self.Extension = Extension
-        self.scene_ext = {}
-
-
-    def gather_scene_hook(self, gltf2_scene, blender_scene, export_settings):
-        if gltf2_scene.extensions is None:
-            gltf2_scene.extensions = {}
-        self.scene_ext["MetadataVersion"] = ColladaMetadataLoader.LSLIB_METADATA_VERSION
-        gltf2_scene.extensions[gltf_ext_name] = self.Extension(
-            name = gltf_ext_name,
-            extension = self.scene_ext,
-            required = False
-        )
-
-
-    def gather_skin_hook(self, gltf2_skin, blender_object, export_settings):
-        bone_order = {}
-        for bone in blender_object.data.bones[:]:
-            bone_order[bone.name] = bone.ls_properties.export_order - 1
-        self.scene_ext["BoneOrder"] = bone_order
-
-
-    def gather_mesh_hook(self, gltf2_mesh, blender_mesh, blender_object, vertex_groups, modifiers, materials, export_settings):
-        ls_props = blender_object.data.ls_properties
-        if gltf2_mesh.extensions is None:
-            gltf2_mesh.extensions = {}
-        gltf2_mesh.extensions[gltf_ext_name] = self.Extension(
-            name = gltf_ext_name,
-            extension = {
-                "Rigid": ls_props.rigid,
-                "Cloth": ls_props.cloth,
-                "MeshProxy": ls_props.mesh_proxy,
-                "ProxyGeometry": ls_props.proxy,
-                "Spring": ls_props.spring,
-                "Occluder": ls_props.occluder,
-                "ClothPhysics": ls_props.cloth_physics,
-                "Cloth01": ls_props.cloth_flag1,
-                "Cloth02": ls_props.cloth_flag2,
-                "Cloth04": ls_props.cloth_flag4,
-                "Impostor": ls_props.impostor,
-                "ExportOrder": ls_props.export_order,
-                "LOD": ls_props.lod,
-                "LODDistance": ls_props.lod_distance
-            },
-            required = False
-        )
-
-
-class glTF2ImportUserExtension:
-    scene_ext = None
-    armature = None
-
-    def gather_import_scene_before_hook(self, gltf_scene, blender_scene, gltf):
-        ls_props = blender_scene.ls_properties
-        if gltf_scene.extensions is not None and gltf_ext_name in gltf_scene.extensions:
-            ext = gltf_scene.extensions[gltf_ext_name]
-            meta_version = ext['MetadataVersion']
-            ls_props.metadata_version = meta_version
-            self.scene_ext = ext
-            if meta_version < ColladaMetadataLoader.LSLIB_METADATA_VERSION:
-                report("GLTF file was exported with a too old LSLib version, important metadata might be missing! Please upgrade your LSLib!", "ERROR")
-
-            if meta_version > ColladaMetadataLoader.LSLIB_METADATA_VERSION:
-                report("The Blender exporter plugin is too old for this LSLib version, please upgrade your exporter plugin!", "ERROR")
-
-
-    def gather_import_scene_after_nodes_hook(self, gltf_scene, blender_scene, gltf):
-        if self.armature is not None and self.scene_ext is not None and 'BoneOrder' in self.scene_ext:
-            bone_order = self.scene_ext['BoneOrder']
-            for bone in self.armature.bones[:]:
-                bone.ls_properties.export_order = bone_order[bone.name] + 1
-
-
-    def gather_import_node_after_hook(self, vnode, gltf_node, blender_object, gltf):
-        if blender_object.type == 'ARMATURE':
-            self.armature = blender_object.data
-
-
-    def gather_import_mesh_after_hook(self, gltf_mesh, blender_mesh, gltf):
-        ls_props = blender_mesh.ls_properties
-        if gltf_mesh.extensions is not None and gltf_ext_name in gltf_mesh.extensions:
-            ext = gltf_mesh.extensions[gltf_ext_name]
-            ls_props.rigid = ext['Rigid']
-            ls_props.cloth = ext['Cloth']
-            ls_props.mesh_proxy = ext['MeshProxy']
-            ls_props.proxy = ext['ProxyGeometry']
-            ls_props.spring = ext['Spring']
-            ls_props.occluder = ext['Occluder']
-            ls_props.cloth_physics = ext['ClothPhysics']
-            ls_props.cloth_flag1 = ext['Cloth01']
-            ls_props.cloth_flag2 = ext['Cloth02']
-            ls_props.cloth_flag4 = ext['Cloth04']
-            ls_props.impostor = ext['Impostor']
-            ls_props.export_order = ext['ExportOrder']
-            ls_props.lod = ext['LOD']
-            ls_props.lod_distance = ext['LODDistance']
-
+# Need to reexport these classes as the glTF exporter looks for these exact class names in the root module
+glTF2ExportUserExtension = gltf.glTF2ExportUserExtension
+glTF2ImportUserExtension = gltf.glTF2ImportUserExtension
 
 
 classes = (
@@ -1969,14 +1711,7 @@ classes = (
     DIVINITYEXPORTER_OT_add_project,
     DIVINITYEXPORTER_OT_remove_project,
     DIVINITYEXPORTER_UL_project_list,
-    DIVINITYEXPORTER_AddonPreferences,
-    LSMeshProperties,
-    LSArmatureProperties,
-    LSBoneProperties,
-    LSSceneProperties,
-    OBJECT_PT_LSPropertyPanel,
-    BONE_PT_LSPropertyPanel,
-    SCENE_PT_LSPropertyPanel
+    DIVINITYEXPORTER_AddonPreferences
 )
 
 def register():
@@ -1986,10 +1721,7 @@ def register():
     for cls in classes:
         bpy.utils.register_class(cls)
 
-    bpy.types.Mesh.ls_properties = PointerProperty(type=LSMeshProperties)
-    bpy.types.Armature.ls_properties = PointerProperty(type=LSArmatureProperties)
-    bpy.types.Bone.ls_properties = PointerProperty(type=LSBoneProperties)
-    bpy.types.Scene.ls_properties = PointerProperty(type=LSSceneProperties)
+    properties.register()
 
     wm = bpy.context.window_manager
     km = wm.keyconfigs.addon.keymaps.new('Window', space_type='EMPTY', region_type='WINDOW', modal=False)
@@ -2007,10 +1739,7 @@ def unregister():
     for cls in classes:
         bpy.utils.unregister_class(cls)
 
-    del bpy.types.Scene.ls_properties
-    del bpy.types.Bone.ls_properties
-    del bpy.types.Armature.ls_properties
-    del bpy.types.Mesh.ls_properties
+    properties.unregister()
 
     wm = bpy.context.window_manager
     kc = wm.keyconfigs.addon
