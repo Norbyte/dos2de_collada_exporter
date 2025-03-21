@@ -29,6 +29,8 @@ if "bpy" in locals():
         importlib.reload(helpers) # noqa
     if "operators_dae" in locals():
         importlib.reload(operators_dae) # noqa
+    if "operators_gltf" in locals():
+        importlib.reload(operators_gltf) # noqa
     if "properties" in locals():
         importlib.reload(properties) # noqa
 
@@ -36,13 +38,13 @@ import bpy
 from bpy.types import Operator, AddonPreferences, PropertyGroup, UIList, Panel
 from bpy.props import StringProperty, BoolProperty, FloatProperty, EnumProperty, CollectionProperty, PointerProperty, IntProperty
 
-from . import export_dae, gltf, properties, helpers, operators_dae
+from . import export_dae, gltf, properties, helpers, operators_dae, operators_gltf
 
 bl_info = {
     "name": "DOS2/BG3 Collada Exporter",
     "author": "LaughingLeader / Norbyte",
     "blender": (3, 6, 0),
-    "version": (2, 0, 0),
+    "version": (3, 0, 0),
     "location": "File > Import-Export",
     "description": ("Export Collada/Granny files for Divinity Original Sin / Baldur's Gate 3."),
     "warning": "",
@@ -169,12 +171,12 @@ class DIVINITYEXPORTER_AddonPreferences(AddonPreferences):
 
 
 def export_menu_func(self, context):
-    self.layout.operator(operators_dae.DIVINITYEXPORTER_OT_export_collada.bl_idname, text="(DEPRECATED) DOS2/BG3 Collada (.dae, .gr2)")
-    #self.layout.operator(DIVINITYEXPORTER_OT_export_gr2.bl_idname, text="DOS2/BG3 Granny (.gr2)")
+    self.layout.operator(operators_dae.DIVINITYEXPORTER_OT_export_collada.bl_idname, text="DOS2/BG3 via Collada (.dae, .gr2)")
+    self.layout.operator(operators_gltf.DIVINITYEXPORTER_OT_export_gltf.bl_idname, text="DOS2/BG3 via glTF (.gr2)")
 
 def import_menu_func(self, context):
-    self.layout.operator(operators_dae.DIVINITYEXPORTER_OT_import_collada.bl_idname, text="(DEPRECATED) DOS2/BG3 Collada (.dae, .gr2)")
-    #self.layout.operator(DIVINITYEXPORTER_OT_impor_gr2.bl_idname, text="DOS2/BG3 Granny (.gr2)")
+    self.layout.operator(operators_dae.DIVINITYEXPORTER_OT_import_collada.bl_idname, text="DOS2/BG3 via Collada (.dae, .gr2)")
+    self.layout.operator(operators_gltf.DIVINITYEXPORTER_OT_import_gltf.bl_idname, text="DOS2/BG3 via glTF (.gr2)")
 
 
 # Need to reexport these classes as the glTF exporter looks for these exact class names in the root module
@@ -202,14 +204,15 @@ def register():
 
     properties.register()
     operators_dae.register()
+    operators_gltf.register()
 
-    #wm = bpy.context.window_manager
-    #km = wm.keyconfigs.addon.keymaps.new('Window', space_type='EMPTY', region_type='WINDOW', modal=False)
+    wm = bpy.context.window_manager
+    km = wm.keyconfigs.addon.keymaps.new('Window', space_type='EMPTY', region_type='WINDOW', modal=False)
 
-    #km_export = km.keymap_items.new(DIVINITYEXPORTER_OT_export_collada.bl_idname, 'E', 'PRESS', ctrl=True, shift=True)
-    #km_import = km.keymap_items.new(DIVINITYEXPORTER_OT_import_collada.bl_idname, 'I', 'PRESS', ctrl=True, shift=True)
-    #addon_keymaps.append((km, km_export))
-    #addon_keymaps.append((km, km_import))
+    km_export = km.keymap_items.new(operators_gltf.DIVINITYEXPORTER_OT_export_gltf.bl_idname, 'E', 'PRESS', ctrl=True, shift=True)
+    km_import = km.keymap_items.new(operators_gltf.DIVINITYEXPORTER_OT_import_gltf.bl_idname, 'I', 'PRESS', ctrl=True, shift=True)
+    addon_keymaps.append((km, km_export))
+    addon_keymaps.append((km, km_import))
 
 
 def unregister():
@@ -221,10 +224,11 @@ def unregister():
 
     properties.unregister()
     operators_dae.unregister()
+    operators_gltf.unregister()
 
-    #wm = bpy.context.window_manager
-    #kc = wm.keyconfigs.addon
-    #if kc:
-    #    for km, kmi in addon_keymaps:
-    #        km.keymap_items.remove(kmi)
-    #addon_keymaps.clear()
+    wm = bpy.context.window_manager
+    kc = wm.keyconfigs.addon
+    if kc:
+        for km, kmi in addon_keymaps:
+            km.keymap_items.remove(kmi)
+    addon_keymaps.clear()
