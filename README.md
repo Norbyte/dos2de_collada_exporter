@@ -1,11 +1,11 @@
-# BG3/DOS2 Collada Exporter for Blender 3.6
+# BG3/DOS2 Collada Exporter for Blender 3.6 and later
 
-An addon for Blender that allows you to import and export DAE/GR2 files for Baldur's Gate 3 and Divinity: Original Sin 2.
+An addon for Blender that allows you to import and export glTF/DAE/GR2 files for Baldur's Gate 3 and Divinity: Original Sin 2.
 
 _[Be sure to grab the LaughingLeader Helpers addon for layer support and additional export setup on individual objects.](https://github.com/LaughingLeader/laughingleader_blender_helpers)_
 
 ## Features:  
-* Export to dae, or export to gr2 if the path to divine.exe is set.
+* Export to glTF/dae, or export to gr2 if the path to divine.exe is set.
 * Automatically rotate the object for DOS2/BG3's Y-Up world (Blender is Z-Up).
 * Use the layer name, active object name, or action name (animations) when exporting.
 * Use built-in presets for quick exporting.
