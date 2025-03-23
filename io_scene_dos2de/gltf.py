@@ -32,7 +32,7 @@ class glTF2ExportUserExtension:
 
 
     def gather_mesh_hook(self, gltf2_mesh, blender_mesh, blender_object, vertex_groups, modifiers, materials, export_settings):
-        ls_props = blender_object.data.ls_properties
+        ls_props = blender_mesh.ls_properties
         if gltf2_mesh.extensions is None:
             gltf2_mesh.extensions = {}
         gltf2_mesh.extensions[gltf_ext_name] = self.Extension(
