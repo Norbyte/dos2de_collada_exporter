@@ -1151,7 +1151,8 @@ class DIVINITYEXPORTER_OT_export_collada(Operator, ExportHelper):
         if tempfile_path is not None:
             invoker = divine.DivineInvoker(addon_prefs, self.divine_settings)
             for collada_file in exported_pathways:
-                invoker.export_gr2(str(tempfile_path), str(output_path), "dae")
+                if not invoker.export_gr2(str(tempfile_path), str(output_path), "dae"):
+                    return {"CANCELLED"}
             tempfile_path.unlink()
 
         helpers.report("Export completed successfully.", "INFO")

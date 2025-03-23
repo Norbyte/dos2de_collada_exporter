@@ -153,7 +153,8 @@ class DIVINITYEXPORTER_OT_export_gltf(Operator, ExportHelper):
 
         addon_prefs = get_prefs(context)
         invoker = divine.DivineInvoker(addon_prefs, self.divine_settings)
-        invoker.export_gr2(str(gltf_path), str(output_path), "glb")
+        if not invoker.export_gr2(str(gltf_path), str(output_path), "glb"):
+            return {"CANCELLED"}
         gltf_path.unlink()
 
         helpers.report("Export completed successfully.", "INFO")
@@ -197,7 +198,7 @@ class DIVINITYEXPORTER_OT_import_gltf(Operator, ImportHelper):
             temp.close()
             gltf_path = Path(temp.name)
             if not invoker.import_gr2(str(input_path), str(gltf_path), "glb"):
-                return{'CANCELLED'}
+                return {'CANCELLED'}
 
             bpy.ops.import_scene.gltf(filepath=str(gltf_path))
 

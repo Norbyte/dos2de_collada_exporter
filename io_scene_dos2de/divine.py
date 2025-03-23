@@ -49,6 +49,31 @@ class DivineInvoker:
                 export_str += "-e " + arg + " "
 
         return export_str
+    
+    def invoke_lslib(self, args):
+        print("[DOS2DE-Collada] Starting GR2 conversion using divine.exe.")
+        print("[DOS2DE-Collada] Sending command: {}".format(args))
+
+        process = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+
+        print("STDERR: ", process.stderr)
+        print("STDOUT: ", process.stdout)
+
+        err = process.stderr
+        if (len(err)):
+            err += '\n'
+        err += '\n'.join(process.stdout.splitlines()[-1:])
+        
+        if process.returncode != 0 or process.stdout.startswith('[FATAL] '):
+            if process.stdout.startswith('[FATAL] Value glb is not allowed'):
+                error_message = "LSLib v1.20 or later is required for glTF support"
+            else:
+                error_message = "Failed to convert GR2 (see the message log for more details). " + err
+            helpers.report(error_message, "ERROR")
+            return False
+        else:
+            return True
+
 
     def export_gr2(self, collada_path, gr2_path, format):
         if not self.check_lslib():
@@ -56,46 +81,18 @@ class DivineInvoker:
         gr2_options_str = self.build_gr2_options()
         divine_exe = '"{}"'.format(self.addon_prefs.lslib_path)
         game_ver = bpy.context.scene.ls_properties.game
-        proccess_args = "{} --loglevel all -g {} -s {} -d {} -i {} -o gr2 -a convert-model {}".format(
+        process_args = "{} --loglevel all -g {} -s {} -d {} -i {} -o gr2 -a convert-model {}".format(
             divine_exe, game_ver, '"{}"'.format(collada_path), '"{}"'.format(gr2_path), format, gr2_options_str
         )
-        
-        print("[DOS2DE-Collada] Starting GR2 conversion using divine.exe.")
-        print("[DOS2DE-Collada] Sending command: {}".format(proccess_args))
 
-        process = subprocess.run(proccess_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-
-        print(process.stdout)
-        print(process.stderr)
-        
-        if process.returncode != 0:
-            error_message = "Failed to convert {} to GR2. {}".format(
-                format, '\n'.join(process.stdout.splitlines()[-1:]) + '\n' + process.stderr)
-            helpers.report(error_message, "ERROR")
-            return False
-        else:
-            return True
+        return self.invoke_lslib(process_args)
 
     def import_gr2(self, gr2_path, collada_path, format):
         if not self.check_lslib():
             return False
         divine_exe = '"{}"'.format(self.addon_prefs.lslib_path)
-        proccess_args = "{} --loglevel all -g bg3 -s {} -d {} -i gr2 -o {} -a convert-model -e flip-uvs".format(
+        process_args = "{} --loglevel all -g bg3 -s {} -d {} -i gr2 -o {} -a convert-model -e flip-uvs".format(
             divine_exe, '"{}"'.format(gr2_path), '"{}"'.format(collada_path), format
         )
         
-        print("[DOS2DE-Collada] Starting {} conversion using divine.exe.".format(format))
-        print("[DOS2DE-Collada] Sending command: {}".format(proccess_args))
-
-        process = subprocess.run(proccess_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-
-        print(process.stdout)
-        print(process.stderr)
-        
-        if process.returncode != 0:
-            error_message = "Failed to convert GR2 to {}. {}".format(
-                format, '\n'.join(process.stdout.splitlines()[-1:]) + '\n' + process.stderr)
-            helpers.report(error_message, "ERROR")
-            return False
-        else:
-            return True
+        return self.invoke_lslib(process_args)
