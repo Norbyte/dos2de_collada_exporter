@@ -12,7 +12,7 @@ from pathlib import Path
 
 
 def get_prefs(context):
-    return context.preferences.addons["io_scene_dos2de"].preferences
+    return context.preferences.addons[__package__].preferences
 
 
 class DIVINITYEXPORTER_OT_export_gltf(Operator, ExportHelper):

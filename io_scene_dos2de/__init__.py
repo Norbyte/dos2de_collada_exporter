@@ -55,7 +55,7 @@ bl_info = {
 }
 
 def get_prefs(context):
-    return context.preferences.addons["io_scene_dos2de"].preferences
+    return context.preferences.addons[__package__].preferences
 
 class ProjectData(PropertyGroup):
     project_folder: StringProperty(
@@ -120,7 +120,7 @@ class DIVINITYEXPORTER_UL_project_list(UIList):
             layout.label(text="", icon_value=icon)
 
 class DIVINITYEXPORTER_AddonPreferences(AddonPreferences):
-    bl_idname = "io_scene_dos2de"
+    bl_idname = __package__
 
     lslib_path: StringProperty(
         name="Divine Path",

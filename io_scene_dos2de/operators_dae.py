@@ -24,7 +24,7 @@ gr2_extra_flags = (
 
 
 def get_prefs(context):
-    return context.preferences.addons["io_scene_dos2de"].preferences
+    return context.preferences.addons[__package__].preferences
 
 
 class GR2_ExportSettings(PropertyGroup):
