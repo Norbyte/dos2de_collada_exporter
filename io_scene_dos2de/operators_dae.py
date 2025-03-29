@@ -424,6 +424,11 @@ class DIVINITYEXPORTER_OT_export_collada(Operator, ExportHelper):
         description="Apply modifiers to mesh objects (does not apply Armature modifier)",
         default=True
         )
+    use_apply_shapekeys: BoolProperty(
+        name="Apply Shapekeys",
+        description="Apply shapekey transformation as visible within the 3D viewport",
+        default=True
+        )
     use_apply_pose_to_armature: BoolProperty(
         name="Apply Pose to Armature",
         description="Apply the current pose to the armature as a new Rest Pose",
