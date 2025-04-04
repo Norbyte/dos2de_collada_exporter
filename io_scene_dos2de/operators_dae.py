@@ -71,6 +71,12 @@ class Divine_ExportSettings(PropertyGroup):
         default=False
     )
 
+    x_flip_meshes: BoolProperty(
+        name="Flip meshes on X axis",
+        description="BG3/DOS2 meshes are usually x-flipped in the GR2 file",
+        default=True
+    )
+
     keep_bind_info: BoolProperty(
 		name="Keep Bind Info",
 		description="Store Bindpose information in custom bone properties for later use during Collada export",
@@ -79,7 +85,8 @@ class Divine_ExportSettings(PropertyGroup):
     navigate_to_blendfolder: BoolProperty(default=False)
 
     drawable_props = [
-        "ignore_uv_nan"
+        "ignore_uv_nan",
+        "x_flip_meshes"
     ]
 
 

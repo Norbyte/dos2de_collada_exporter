@@ -28,7 +28,8 @@ class DivineInvoker:
         # force-legacy-version;compact-tris;build-dummy-skeleton;apply-basis-transforms;conform"
 
         divine_args = {
-            "ignore_uv_nan" : "ignore-uv-nan"
+            "ignore_uv_nan" : "ignore-uv-nan",
+            "x_flip_meshes": "x-flip-meshes"
         }
 
         gr2_args = {
