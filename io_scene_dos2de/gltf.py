@@ -17,6 +17,7 @@ class glTF2ExportUserExtension:
         if gltf2_scene.extensions is None:
             gltf2_scene.extensions = {}
         self.scene_ext["MetadataVersion"] = LSLIB_GLTF_METADATA_VERSION
+        self.scene_ext["ModelName"] = blender_scene.ls_properties.root_model_name
         gltf2_scene.extensions[gltf_ext_name] = self.Extension(
             name = gltf_ext_name,
             extension = self.scene_ext,
@@ -67,6 +68,8 @@ class glTF2ImportUserExtension:
             ext = gltf_scene.extensions[gltf_ext_name]
             meta_version = ext['MetadataVersion']
             ls_props.metadata_version = meta_version
+            if 'ModelName' in ext:
+                ls_props.root_model_name = ext['ModelName']
             self.scene_ext = ext
             if meta_version < LSLIB_GLTF_METADATA_VERSION:
                 helpers.report("GLTF file was exported with a too old LSLib version, important metadata might be missing! Please upgrade your LSLib!", "ERROR")

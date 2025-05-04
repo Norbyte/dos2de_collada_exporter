@@ -101,6 +101,11 @@ class LSSceneProperties(PropertyGroup):
         options={"HIDDEN"},
         default=0
     )
+    root_model_name: StringProperty(
+        name="Root Model Name",
+        description="Model name to use when exporting to GR2",
+        default=""
+    )
 
 class OBJECT_PT_LSPropertyPanel(Panel):
     bl_label = "BG3 Settings"
@@ -163,6 +168,7 @@ class SCENE_PT_LSPropertyPanel(Panel):
         layout = self.layout
         props = context.scene.ls_properties
         layout.prop(props, "game")
+        layout.prop(props, "root_model_name")
 
 
 classes = (
