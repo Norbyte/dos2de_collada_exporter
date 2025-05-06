@@ -52,7 +52,8 @@ class glTF2ExportUserExtension:
                 "Impostor": ls_props.impostor,
                 "ExportOrder": ls_props.export_order,
                 "LOD": ls_props.lod,
-                "LODDistance": ls_props.lod_distance
+                "LODDistance": ls_props.lod_distance,
+                "ParentBone": ls_props.parent_bone
             },
             required = False
         )
@@ -108,3 +109,4 @@ class glTF2ImportUserExtension:
             ls_props.export_order = ext['ExportOrder']
             ls_props.lod = ext['LOD']
             ls_props.lod_distance = ext['LODDistance']
+            ls_props.parent_bone = ext['ParentBone'] if 'ParentBone' in ext else ''

@@ -75,6 +75,11 @@ class LSMeshProperties(PropertyGroup):
         min = 0.0,
         default = 0.0
         )
+    parent_bone: StringProperty(
+        name="Rigid Parent Bone",
+        description="Bone to attach the rigid mesh to (unused if the mesh is skinned)",
+        default = ""
+        )
 
 class LSArmatureProperties(PropertyGroup):
     skeleton_resource_id: StringProperty(
@@ -138,6 +143,7 @@ class OBJECT_PT_LSPropertyPanel(Panel):
             layout.prop(props, "lod")
             layout.prop(props, "lod_distance")
             layout.prop(props, "export_order")
+            layout.prop(props, "parent_bone")
         elif context.active_object.type == "ARMATURE":
             props = context.active_object.data.ls_properties
             layout.prop(props, "skeleton_resource_id")
