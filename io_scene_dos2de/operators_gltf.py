@@ -143,6 +143,7 @@ class DIVINITYEXPORTER_OT_export_gltf(Operator, ExportHelper):
         result = bpy.ops.export_scene.gltf(filepath=str(gltf_path), export_format='GLB', export_tangents=True,
                                   export_optimize_animation_keep_anim_object=True,
                                   export_bake_animation=True, 
+                                  export_materials='NONE',
                                   export_morph=False, export_morph_animation=False,
                                   use_selection=self.use_selection, use_visible=self.use_visible,
                                   use_renderable=self.use_renderable, use_active_collection=self.use_active_collection,
