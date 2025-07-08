@@ -48,9 +48,10 @@ mklink /j "C:\Path1\io_scene_dos2de" "C:\Path2\scripts\addons\io_scene_dos2de"
 
 
 ### Troubleshooting
-* I don't see the addon inside Blender.  
+* _I don't see the addon inside Blender._  
   Make sure the folder with the scripts (io_scene_dos2de/__init__.py, etc) is the folder inside scripts/addons. Blender won't read a nested folder. For example, if your folder is located like so: `scripts/addons/io_scene_dos2de/io_scene_dos2de`, Blender won't load the scripts or recognize the addon.
-* Blender says `LSLib path was not set up in addon preferences. Cannot convert to GR2.` Make sure you've set the Divine Path in the preferences settings. If you haven't already, you'll need to install [Norbyte's Export Tool](https://github.com/Norbyte/lslib), which will contain divine.exe.
+* _Blender says_ `LSLib path was not set up in addon preferences. Cannot convert to GR2.`  
+  Make sure you've set the Divine Path in the preferences settings. If you haven't already, you'll need to install [Norbyte's Export Tool](https://github.com/Norbyte/lslib), which will contain divine.exe.
 
 ## Preferences Settings
 ![image](https://github.com/user-attachments/assets/05fb8e8d-e5bc-4456-a8f9-04cf51918e7a)
