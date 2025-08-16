@@ -20,7 +20,7 @@ class DivineInvoker:
         
         return True
 
-    def build_gr2_options(self):
+    def build_export_options(self):
         export_str = ""
         # Possible args:
         #"export-normals;export-tangents;export-uvs;export-colors;deduplicate-vertices;
@@ -51,6 +51,20 @@ class DivineInvoker:
                 export_str += "-e " + arg + " "
 
         return export_str
+
+    def build_import_options(self):
+        args = ""
+        divine_args = {
+            "x_flip_meshes": "x-flip-meshes",
+            "mirror_skeletons": "mirror-skeletons"
+        }
+
+        for prop,arg in divine_args.items():
+            val = getattr(self.divine_prefs, prop, False)
+            if val == True:
+                args += "-e " + arg + " "
+
+        return args
     
     def invoke_lslib(self, args):
         print("[DOS2DE-Collada] Starting GR2 conversion using divine.exe.")
@@ -84,7 +98,7 @@ class DivineInvoker:
     def export_gr2(self, collada_path, gr2_path, format):
         if not self.check_lslib():
             return False
-        gr2_options_str = self.build_gr2_options()
+        gr2_options_str = self.build_export_options()
         divine_exe = '"{}"'.format(self.addon_prefs.lslib_path)
         game_ver = bpy.context.scene.ls_properties.game
         process_args = "{} --loglevel all -g {} -s {} -d {} -i {} -o gr2 -a convert-model {}".format(
@@ -96,9 +110,10 @@ class DivineInvoker:
     def import_gr2(self, gr2_path, collada_path, format):
         if not self.check_lslib():
             return False
+        gr2_options_str = self.build_import_options()
         divine_exe = '"{}"'.format(self.addon_prefs.lslib_path)
-        process_args = "{} --loglevel all -g bg3 -s {} -d {} -i gr2 -o {} -a convert-model -e flip-uvs".format(
-            divine_exe, '"{}"'.format(gr2_path), '"{}"'.format(collada_path), format
+        process_args = "{} --loglevel all -g bg3 -s {} -d {} -i gr2 -o {} -a convert-model -e flip-uvs {}".format(
+            divine_exe, '"{}"'.format(gr2_path), '"{}"'.format(collada_path), format, gr2_options_str
         )
         
         return self.invoke_lslib(process_args)

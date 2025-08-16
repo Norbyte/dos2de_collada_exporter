@@ -177,10 +177,19 @@ class DIVINITYEXPORTER_OT_import_gltf(Operator, ImportHelper):
         default=".gr2"
     )
 
+    divine_settings: PointerProperty(
+        type=operators_dae.Divine_ImportSettings,
+        name="GR2 Settings"
+    )
+
     filter_glob: StringProperty(default="*.gr2", options={"HIDDEN"})
 
     files: CollectionProperty(type=bpy.types.OperatorFileListElement)
     directory: StringProperty()
+    
+    def draw(self, context):
+        box = self.layout.box()
+        self.divine_settings.draw(context, box)
 
     def execute(self, context):
         try:
@@ -196,7 +205,7 @@ class DIVINITYEXPORTER_OT_import_gltf(Operator, ImportHelper):
             input_path = Path(os.path.join(directory, f.name))
 
             addon_prefs = get_prefs(context)
-            invoker = divine.DivineInvoker(addon_prefs, None)
+            invoker = divine.DivineInvoker(addon_prefs, self.divine_settings)
             temp = tempfile.NamedTemporaryFile(suffix=".glb", delete=False)
             temp.close()
             gltf_path = Path(temp.name)

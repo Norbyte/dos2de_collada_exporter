@@ -109,6 +109,26 @@ class Divine_ExportSettings(PropertyGroup):
             obj.prop(self, prop)
 
 
+class Divine_ImportSettings(PropertyGroup):
+    """Divine GR2 Import Settings"""
+    x_flip_meshes: BoolProperty(
+        name="Flip meshes on X axis",
+        description="BG3/DOS2 meshes are usually x-flipped in the GR2 file",
+        default=False
+    )
+
+    mirror_skeletons: BoolProperty(
+        name="Mirror Skeletons",
+        description="Mirror left (_l) and right (_r) bones in the skeleton",
+        default=False
+    )
+
+    def draw(self, context, obj):
+        obj.label(text="GR2 Import Options")
+        obj.prop(self, "x_flip_meshes")
+        obj.prop(self, "mirror_skeletons")
+
+
 class ExportTargetCollection:
     __slots__ = ("targets", "ordered_targets")
 
@@ -1262,6 +1282,7 @@ class DIVINITYEXPORTER_OT_import_collada(Operator, ImportHelper):
 classes = (
     GR2_ExportSettings,
     Divine_ExportSettings,
+    Divine_ImportSettings,
     DIVINITYEXPORTER_OT_export_collada,
     DIVINITYEXPORTER_OT_import_collada
 )
