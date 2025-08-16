@@ -114,6 +114,8 @@ class DIVINITYEXPORTER_OT_export_gltf(Operator, ExportHelper):
         scene_props = bpy.context.scene.ls_properties
         if scene_props.game != "unset":
             self.divine_settings.game = scene_props.game
+            self.divine_settings.x_flip_meshes = scene_props.xflip_on_export
+            self.divine_settings.mirror_skeletons = scene_props.xflip_on_export
 
         context.window_manager.fileselect_add(self)
         self.initialized = True

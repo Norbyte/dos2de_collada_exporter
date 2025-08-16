@@ -111,6 +111,11 @@ class LSSceneProperties(PropertyGroup):
         description="Model name to use when exporting to GR2",
         default=""
     )
+    xflip_on_export: BoolProperty(
+        name="X-Flip on Export",
+        description="X-flip the mesh and mirror the skeleton when exporting to GR2",
+        default=False
+    )
 
 class OBJECT_PT_LSPropertyPanel(Panel):
     bl_label = "BG3 Settings"
@@ -175,6 +180,7 @@ class SCENE_PT_LSPropertyPanel(Panel):
         props = context.scene.ls_properties
         layout.prop(props, "game")
         layout.prop(props, "root_model_name")
+        layout.prop(props, "xflip_on_export")
 
 
 classes = (

@@ -62,7 +62,7 @@ class Divine_ExportSettings(PropertyGroup):
         name="Game",
         description="The target game. Currently determines the model format type",
         items=properties.game_versions,
-        default=("dos2de")
+        default=("bg3")
     )
 
     ignore_uv_nan: BoolProperty(
@@ -74,7 +74,13 @@ class Divine_ExportSettings(PropertyGroup):
     x_flip_meshes: BoolProperty(
         name="Flip meshes on X axis",
         description="BG3/DOS2 meshes are usually x-flipped in the GR2 file",
-        default=True
+        default=False
+    )
+
+    mirror_skeletons: BoolProperty(
+        name="Mirror Skeletons",
+        description="Mirror left (_l) and right (_r) bones in the skeleton",
+        default=False
     )
 
     keep_bind_info: BoolProperty(
@@ -86,7 +92,8 @@ class Divine_ExportSettings(PropertyGroup):
 
     drawable_props = [
         "ignore_uv_nan",
-        "x_flip_meshes"
+        "x_flip_meshes",
+        "mirror_skeletons"
     ]
 
 

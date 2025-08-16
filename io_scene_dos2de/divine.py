@@ -29,7 +29,8 @@ class DivineInvoker:
 
         divine_args = {
             "ignore_uv_nan" : "ignore-uv-nan",
-            "x_flip_meshes": "x-flip-meshes"
+            "x_flip_meshes": "x-flip-meshes",
+            "mirror_skeletons": "mirror-skeletons"
         }
 
         gr2_args = {
@@ -55,7 +56,11 @@ class DivineInvoker:
         print("[DOS2DE-Collada] Starting GR2 conversion using divine.exe.")
         print("[DOS2DE-Collada] Sending command: {}".format(args))
 
-        process = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+        try:
+            process = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+        except OSError as e:
+            helpers.report("Failed to launch lslib: " + str(e), "ERROR")
+            return False
 
         print("STDERR: ", process.stderr)
         print("STDOUT: ", process.stdout)
