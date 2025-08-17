@@ -49,7 +49,7 @@ class DIVINITYEXPORTER_OT_export_gltf(Operator, ExportHelper):
     use_selection: BoolProperty(
         name="Selected Objects",
         description="Export selected objects only",
-        default=False
+        default=True
     )
 
     use_visible: BoolProperty(
