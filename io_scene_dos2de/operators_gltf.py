@@ -24,7 +24,7 @@ class DIVINITYEXPORTER_OT_export_gltf(Operator, ExportHelper):
     filename_ext: StringProperty(
         name="File Extension",
         options={"HIDDEN"},
-        default=".gr2"
+        default=".GR2"
     )
 
     filter_glob: StringProperty(default="*.gr2", options={"HIDDEN"})
