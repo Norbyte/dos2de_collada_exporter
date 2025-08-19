@@ -117,6 +117,9 @@ class DIVINITYEXPORTER_OT_export_gltf(Operator, ExportHelper):
             self.divine_settings.x_flip_meshes = scene_props.xflip_on_export
             self.divine_settings.mirror_skeletons = scene_props.xflip_on_export
 
+        if not self.filepath:
+            self.filepath = bpy.path.ensure_ext(bpy.data.filepath.replace(".blend", ""), self.filename_ext)
+        
         context.window_manager.fileselect_add(self)
         self.initialized = True
 
