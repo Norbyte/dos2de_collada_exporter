@@ -197,7 +197,7 @@ class DIVINITYEXPORTER_OT_import_gltf(Operator, ImportHelper):
     filename_ext: StringProperty(
         name="File Extension",
         options={"HIDDEN"},
-        default=".gr2"
+        default=".GR2"
     )
 
     divine_settings: PointerProperty(
