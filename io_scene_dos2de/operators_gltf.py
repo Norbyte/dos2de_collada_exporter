@@ -49,7 +49,7 @@ class DIVINITYEXPORTER_OT_export_gltf(Operator, ExportHelper):
     use_selection: BoolProperty(
         name="Selected Objects",
         description="Export selected objects only",
-        default=False
+        default=True
     )
 
     use_visible: BoolProperty(
@@ -79,6 +79,12 @@ class DIVINITYEXPORTER_OT_export_gltf(Operator, ExportHelper):
     export_apply: BoolProperty(
         name="Apply Modifiers",
         description="Apply modifiers (excluding Armatures) to mesh objects - WARNING: prevents exporting shape keys",
+        default=True
+    )
+
+    export_bake_animation: BoolProperty(
+        name="Bake Animation",
+        description="Bake and export animations",
         default=False
     )
 
@@ -92,6 +98,7 @@ class DIVINITYEXPORTER_OT_export_gltf(Operator, ExportHelper):
         box.prop(self, "use_active_collection")
         box.prop(self, "use_active_scene")
         box.prop(self, "export_apply")
+        box.prop(self, "export_bake_animation")
 
         box = layout.box()
         self.divine_settings.draw(context, box)
@@ -144,7 +151,7 @@ class DIVINITYEXPORTER_OT_export_gltf(Operator, ExportHelper):
 
         result = bpy.ops.export_scene.gltf(filepath=str(gltf_path), export_format='GLB', export_tangents=True,
                                   export_optimize_animation_keep_anim_object=True,
-                                  export_bake_animation=True, 
+                                  export_bake_animation=self.export_bake_animation, 
                                   export_materials='NONE',
                                   export_morph=False, export_morph_animation=False,
                                   use_selection=self.use_selection, use_visible=self.use_visible,
