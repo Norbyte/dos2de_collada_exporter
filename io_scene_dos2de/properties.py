@@ -1,4 +1,4 @@
-from bpy.types import PropertyGroup, Panel, Mesh, Armature, Bone, Scene
+from bpy.types import PropertyGroup, Panel, Mesh, Armature, Bone, Scene, EditBone
 from bpy.props import StringProperty, BoolProperty, FloatProperty, EnumProperty, IntProperty, PointerProperty
 from bpy.utils import register_class, unregister_class
 
@@ -93,6 +93,11 @@ class LSBoneProperties(PropertyGroup):
         description="Index of bone in the exported .GR2 file; must match bone order of the reference skeleton",
         default = 0
         )
+    scale: FloatProperty(
+        name="Scale",
+        description="Scale of bone attachments",
+        default = 1.0
+        )
 
 class LSSceneProperties(PropertyGroup):
     game: EnumProperty(
@@ -166,6 +171,7 @@ class BONE_PT_LSPropertyPanel(Panel):
         if context.active_bone is not None:
             props = context.active_bone.ls_properties
             layout.prop(props, "export_order")
+            layout.prop(props, "scale")
 
 
 class SCENE_PT_LSPropertyPanel(Panel):
@@ -200,6 +206,7 @@ def register():
     Mesh.ls_properties = PointerProperty(type=LSMeshProperties)
     Armature.ls_properties = PointerProperty(type=LSArmatureProperties)
     Bone.ls_properties = PointerProperty(type=LSBoneProperties)
+    EditBone.ls_properties = PointerProperty(type=LSBoneProperties)
     Scene.ls_properties = PointerProperty(type=LSSceneProperties)
 
 

@@ -27,9 +27,13 @@ class glTF2ExportUserExtension:
 
     def gather_skin_hook(self, gltf2_skin, blender_object, export_settings):
         bone_order = {}
+        bone_scale = {}
         for bone in blender_object.data.bones[:]:
             bone_order[bone.name] = bone.ls_properties.export_order - 1
+            if abs(bone.ls_properties.scale - 1.0) > 0.01:
+                bone_scale[bone.name] = bone.ls_properties.scale
         self.scene_ext["BoneOrder"] = bone_order
+        self.scene_ext["BoneScale"] = bone_scale
 
 
     def gather_mesh_hook(self, gltf2_mesh, blender_mesh, blender_object, vertex_groups, modifiers, materials, export_settings):
@@ -80,10 +84,16 @@ class glTF2ImportUserExtension:
 
 
     def gather_import_scene_after_nodes_hook(self, gltf_scene, blender_scene, gltf):
-        if self.armature is not None and self.scene_ext is not None and 'BoneOrder' in self.scene_ext:
-            bone_order = self.scene_ext['BoneOrder']
-            for bone in self.armature.bones[:]:
-                bone.ls_properties.export_order = bone_order[bone.name] + 1
+        if self.armature is not None and self.scene_ext is not None:
+            if 'BoneOrder' in self.scene_ext:
+                bone_order = self.scene_ext['BoneOrder']
+                for bone in self.armature.bones[:]:
+                    bone.ls_properties.export_order = bone_order[bone.name] + 1
+            if 'BoneScale' in self.scene_ext:
+                bone_scale = self.scene_ext['BoneScale']
+                for bone in self.armature.bones[:]:
+                    if bone.name in bone_scale:
+                        bone.ls_properties.scale = bone_scale[bone.name]
 
 
     def gather_import_node_after_hook(self, vnode, gltf_node, blender_object, gltf):
