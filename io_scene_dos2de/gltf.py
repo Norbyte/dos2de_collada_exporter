@@ -34,6 +34,7 @@ class glTF2ExportUserExtension:
                 bone_scale[bone.name] = bone.ls_properties.scale
         self.scene_ext["BoneOrder"] = bone_order
         self.scene_ext["BoneScale"] = bone_scale
+        self.scene_ext["SkeletonResourceID"] = blender_object.data.ls_properties.skeleton_resource_id
 
 
     def gather_mesh_hook(self, gltf2_mesh, blender_mesh, blender_object, vertex_groups, modifiers, materials, export_settings):
@@ -94,6 +95,8 @@ class glTF2ImportUserExtension:
                 for bone in self.armature.bones[:]:
                     if bone.name in bone_scale:
                         bone.ls_properties.scale = bone_scale[bone.name]
+            if 'SkeletonResourceID' in self.scene_ext and self.armature.ls_properties.skeleton_resource_id == "":
+                self.armature.ls_properties.skeleton_resource_id = self.scene_ext['SkeletonResourceID']
 
 
     def gather_import_node_after_hook(self, vnode, gltf_node, blender_object, gltf):
