@@ -336,9 +336,10 @@ class DIVINITYEXPORTER_OT_export_collada(Operator, ExportHelper):
             elif self.auto_name == "ACTION":
                 armature = None
                 if self.use_active_layers:
-                    obj = next(iter([x for x in context.scene.objects if x.type == "ARMATURE" and x.layers[context.scene.active_layer]]))
-                    if obj is not None:
-                        armature = obj
+                    obj = next(iter([
+                        x for x in context.view_layer.objects 
+                        if x.type == "ARMATURE" and x.visible_get()
+                    ]), None)
                 elif self.use_export_selected:
                     for obj in context.scene.objects:
                         if obj.select_get() and obj.type == "ARMATURE":
@@ -505,7 +506,7 @@ class DIVINITYEXPORTER_OT_export_collada(Operator, ExportHelper):
         description="Export keyframe animation",
         default=False
         )
-    use_anim_action_all = BoolProperty(name="All Actions",
+    use_anim_action_all: BoolProperty(name="All Actions",
         description=("Export all actions for the first armature found in separate DAE files"),
         default=False
         )

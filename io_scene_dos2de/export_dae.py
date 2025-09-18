@@ -1253,10 +1253,8 @@ class DaeExporter:
                     # animation, animate the skin instead
                     continue
 
-                if (len(node.constraints) > 0 or
-                        node.animation_data is not None):
-                    # If the node has constraints, or animation data, then
-                    # export a sampled animation track
+                # Skip adding animation tracks for armature objects themselves
+                if (node.type != "ARMATURE" and (len(node.constraints) > 0 or node.animation_data is not None)):
                     name = self.validate_id(node.name)
                     if (not (name in xform_cache)):
                         xform_cache[name] = []
