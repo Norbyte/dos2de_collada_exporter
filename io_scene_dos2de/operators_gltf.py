@@ -145,21 +145,6 @@ class DIVINITYEXPORTER_OT_export_gltf(Operator, ExportHelper):
 
         context.scene.ls_properties.metadata_version = collada.ColladaMetadataLoader.LSLIB_METADATA_VERSION
 
-        # Temporarily filter out unrelated/unassigned Actions
-        original_action_names = [a.name for a in bpy.data.actions]
-        selected_actions = []
-
-        for obj in context.selected_objects:
-            if obj.type == "ARMATURE":
-                anim_data = obj.animation_data
-                if anim_data and anim_data.action:
-                    selected_actions.append(anim_data.action)
-
-        selected_names = [a.name for a in selected_actions]
-        for act in list(bpy.data.actions):
-            if act.name not in selected_names:
-                bpy.data.actions.remove(act, do_unlink=True)
-        
         result = bpy.ops.export_scene.gltf(filepath=str(gltf_path), export_format='GLB', export_tangents=True,
                                   export_optimize_animation_keep_anim_object=True,
                                   export_bake_animation=True, 
@@ -169,11 +154,6 @@ class DIVINITYEXPORTER_OT_export_gltf(Operator, ExportHelper):
                                   use_renderable=self.use_renderable, use_active_collection=self.use_active_collection,
                                   use_active_scene=self.use_active_scene, export_apply=self.export_apply)
 
-        # Restore all original actions
-        for name in original_action_names:
-            if name not in bpy.data.actions:
-                bpy.data.actions.new(name=name)
-        
         if result != {"FINISHED"}:
             return result
 
