@@ -150,7 +150,7 @@ class DIVINITYEXPORTER_OT_export_gltf(Operator, ExportHelper):
                                   export_anim_single_armature=False,
                                   export_bake_animation=True, 
                                   export_materials='NONE',
-                                  export_morph=False, export_morph_animation=False,
+                                  export_morph=True, export_morph_animation=False,
                                   use_selection=self.use_selection, use_visible=self.use_visible,
                                   use_renderable=self.use_renderable, use_active_collection=self.use_active_collection,
                                   use_active_scene=self.use_active_scene, export_apply=self.export_apply)
