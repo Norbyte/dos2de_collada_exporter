@@ -146,9 +146,7 @@ class DIVINITYEXPORTER_OT_export_gltf(Operator, ExportHelper):
         context.scene.ls_properties.metadata_version = collada.ColladaMetadataLoader.LSLIB_METADATA_VERSION
 
         result = bpy.ops.export_scene.gltf(filepath=str(gltf_path), export_format='GLB', export_tangents=True,
-                                  export_optimize_animation_keep_anim_object=True,
                                   export_anim_single_armature=False,
-                                  export_bake_animation=True, 
                                   export_materials='NONE',
                                   export_morph=True, export_morph_animation=False,
                                   use_selection=self.use_selection, use_visible=self.use_visible,
