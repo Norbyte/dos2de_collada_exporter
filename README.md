@@ -43,18 +43,21 @@ mklink /j "C:\Path1\io_scene_dos2de" "C:\Path2\scripts\addons\io_scene_dos2de"
     * With this program installed, right click the io_scene_dos2de folder and select "Pick Link Source", then go to scripts/addons, right click the background, and select Drop As... -> Junction.
 
 ### Activating the Addon  
-* In Blender, navigate to File -> User Preferences -> Add-ons
-* Either search for "Divinity", or click Community, then Import-Export.
-* Check the checkbox next to "Divinity Collada Exporter".
+* In Blender, navigate to Edit -> Preferences -> Add-ons
+* Check the checkbox next to "DOS2/BG3 Collada Exporter".
+
 
 ### Troubleshooting
-* I don't see the addon inside Blender.  
+* _I don't see the addon inside Blender._  
   Make sure the folder with the scripts (io_scene_dos2de/__init__.py, etc) is the folder inside scripts/addons. Blender won't read a nested folder. For example, if your folder is located like so: `scripts/addons/io_scene_dos2de/io_scene_dos2de`, Blender won't load the scripts or recognize the addon.
+* _Blender says_ `LSLib path was not set up in addon preferences. Cannot convert to GR2.`  
+  Make sure you've set the Divine Path in the preferences settings. If you haven't already, you'll need to install [Norbyte's Export Tool](https://github.com/Norbyte/lslib), which will contain divine.exe.
 
-## User Preferences Settings
+## Preferences Settings
+![image](https://github.com/user-attachments/assets/05fb8e8d-e5bc-4456-a8f9-04cf51918e7a)
 
 ### Divine Path  
-This is the path to divine.exe, bundled with Norbyte's Export Tool. If set, the addon can export to the GR2 format, using divine.
+This is the path to divine.exe, bundled with any release of [Norbyte's Export Tool](https://github.com/Norbyte/lslib). If set, the addon can import/export the GR2 format, using divine.
 
 ### Convert to GR2 by Default  
 If checked, "Convert to GR2" will automatically be checked when exporting. Requires divine.exe's path to be set.
