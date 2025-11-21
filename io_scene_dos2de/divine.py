@@ -67,8 +67,8 @@ class DivineInvoker:
         return args
     
     def invoke_lslib(self, args):
-        print("[DOS2DE-Collada] Starting GR2 conversion using divine.exe.")
-        print("[DOS2DE-Collada] Sending command: {}".format(args))
+        print("Starting GR2 conversion using divine.exe.")
+        print("Commandline: {}".format(args))
 
         try:
             process = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
@@ -95,25 +95,25 @@ class DivineInvoker:
             return True
 
 
-    def export_gr2(self, collada_path, gr2_path, format):
+    def export_gr2(self, input_path, gr2_path, format):
         if not self.check_lslib():
             return False
         gr2_options_str = self.build_export_options()
         divine_exe = '"{}"'.format(self.addon_prefs.lslib_path)
         game_ver = bpy.context.scene.ls_properties.game
         process_args = "{} --loglevel all -g {} -s {} -d {} -i {} -o gr2 -a convert-model {}".format(
-            divine_exe, game_ver, '"{}"'.format(collada_path), '"{}"'.format(gr2_path), format, gr2_options_str
+            divine_exe, game_ver, '"{}"'.format(input_path), '"{}"'.format(gr2_path), format, gr2_options_str
         )
 
         return self.invoke_lslib(process_args)
 
-    def import_gr2(self, gr2_path, collada_path, format):
+    def import_gr2(self, gr2_path, output_path, format):
         if not self.check_lslib():
             return False
         gr2_options_str = self.build_import_options()
         divine_exe = '"{}"'.format(self.addon_prefs.lslib_path)
         process_args = "{} --loglevel all -g bg3 -s {} -d {} -i gr2 -o {} -a convert-model -e flip-uvs {}".format(
-            divine_exe, '"{}"'.format(gr2_path), '"{}"'.format(collada_path), format, gr2_options_str
+            divine_exe, '"{}"'.format(gr2_path), '"{}"'.format(output_path), format, gr2_options_str
         )
         
         return self.invoke_lslib(process_args)

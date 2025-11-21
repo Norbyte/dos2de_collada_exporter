@@ -15,20 +15,24 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
+def supports_collada():
+    return bpy.app.version < (5, 0, 0)
+
 if "bpy" in locals():
     import importlib
-    if "collada" in locals():
-        importlib.reload(collada) # noqa
+    if supports_collada():
+        if "collada" in locals():
+            importlib.reload(collada) # noqa
+        if "operators_dae" in locals():
+            importlib.reload(operators_dae) # noqa
+        if "export_dae" in locals():
+            importlib.reload(export_dae) # noqa
     if "divine" in locals():
         importlib.reload(divine) # noqa
-    if "export_dae" in locals():
-        importlib.reload(export_dae) # noqa
     if "gltf" in locals():
         importlib.reload(gltf) # noqa
     if "helpers" in locals():
         importlib.reload(helpers) # noqa
-    if "operators_dae" in locals():
-        importlib.reload(operators_dae) # noqa
     if "operators_gltf" in locals():
         importlib.reload(operators_gltf) # noqa
     if "properties" in locals():
@@ -38,15 +42,15 @@ import bpy
 from bpy.types import Operator, AddonPreferences, PropertyGroup, UIList, Panel
 from bpy.props import StringProperty, BoolProperty, FloatProperty, EnumProperty, CollectionProperty, PointerProperty, IntProperty
 
-from . import export_dae, gltf, properties, helpers, operators_dae, operators_gltf
+from . import collada, divine, export_dae, gltf, properties, helpers, operators_dae, operators_gltf
 
 bl_info = {
-    "name": "DOS2/BG3 Collada Exporter",
+    "name": "DOS2/BG3 glTF Exporter",
     "author": "LaughingLeader / Norbyte",
     "blender": (3, 6, 0),
     "version": (3, 0, 0),
     "location": "File > Import-Export",
-    "description": ("Export Collada/Granny files for Divinity Original Sin / Baldur's Gate 3."),
+    "description": ("Export glTF/Granny files for Divinity Original Sin / Baldur's Gate 3."),
     "warning": "",
     "doc_url": "",
     "tracker_url": "",
@@ -124,7 +128,7 @@ class DIVINITYEXPORTER_AddonPreferences(AddonPreferences):
 
     lslib_path: StringProperty(
         name="Divine Path",
-        description="The path to divine.exe, used to convert from dae to gr2",
+        description="The path to divine.exe, used to convert from glTF to GR2",
         subtype='FILE_PATH',
     )
     gr2_default_enabled: BoolProperty(
@@ -171,11 +175,13 @@ class DIVINITYEXPORTER_AddonPreferences(AddonPreferences):
 
 
 def export_menu_func(self, context):
-    self.layout.operator(operators_dae.DIVINITYEXPORTER_OT_export_collada.bl_idname, text="DOS2/BG3 via Collada (.dae, .gr2)")
+    if supports_collada():
+        self.layout.operator(operators_dae.DIVINITYEXPORTER_OT_export_collada.bl_idname, text="DOS2/BG3 via Collada (.dae, .gr2)")
     self.layout.operator(operators_gltf.DIVINITYEXPORTER_OT_export_gltf.bl_idname, text="DOS2/BG3 via glTF (.gr2)")
 
 def import_menu_func(self, context):
-    self.layout.operator(operators_dae.DIVINITYEXPORTER_OT_import_collada.bl_idname, text="DOS2/BG3 via Collada (.dae, .gr2)")
+    if supports_collada():
+        self.layout.operator(operators_dae.DIVINITYEXPORTER_OT_import_collada.bl_idname, text="DOS2/BG3 via Collada (.dae, .gr2)")
     self.layout.operator(operators_gltf.DIVINITYEXPORTER_OT_import_gltf.bl_idname, text="DOS2/BG3 via glTF (.gr2)")
 
 
@@ -203,7 +209,8 @@ def register():
         bpy.utils.register_class(cls)
 
     properties.register()
-    operators_dae.register()
+    if supports_collada():
+        operators_dae.register()
     operators_gltf.register()
 
     wm = bpy.context.window_manager
@@ -223,7 +230,8 @@ def unregister():
         bpy.utils.unregister_class(cls)
 
     properties.unregister()
-    operators_dae.unregister()
+    if supports_collada():
+        operators_dae.unregister()
     operators_gltf.unregister()
 
     wm = bpy.context.window_manager
