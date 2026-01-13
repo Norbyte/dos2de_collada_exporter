@@ -69,6 +69,12 @@ class Divine_ExportSettings(PropertyGroup):
         default=False
     )
 
+    srgb_colors: BoolProperty(
+        name="sRGB Colors",
+        description="Export mesh color channels as sRGB instead of linear",
+        default=False
+    )
+
     keep_bind_info: BoolProperty(
 		name="Keep Bind Info",
 		description="Store Bindpose information in custom bone properties for later use during Collada export",
@@ -79,7 +85,8 @@ class Divine_ExportSettings(PropertyGroup):
     drawable_props = [
         "ignore_uv_nan",
         "x_flip_meshes",
-        "mirror_skeletons"
+        "mirror_skeletons",
+        "srgb_colors"
     ]
 
 

@@ -145,6 +145,7 @@ class DIVINITYEXPORTER_OT_export_gltf(Operator, ExportHelper):
 
         context.scene.ls_properties.metadata_version = collada.ColladaMetadataLoader.LSLIB_METADATA_VERSION
 
+        gltf.glTF2ExportUserExtension.apply_srgb_fixup = self.divine_settings.srgb_colors
         result = bpy.ops.export_scene.gltf(filepath=str(gltf_path), export_format='GLB', export_tangents=True,
                                   export_anim_single_armature=False,
                                   export_materials='NONE',
