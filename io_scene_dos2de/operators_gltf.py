@@ -214,6 +214,7 @@ class DIVINITYEXPORTER_OT_import_gltf(Operator, ImportHelper):
             if not invoker.import_gr2(str(input_path), str(gltf_path), "glb"):
                 return {'CANCELLED'}
 
+            gltf.glTF2ImportUserExtension.apply_srgb_fixup = self.divine_settings.srgb_colors
             bpy.ops.import_scene.gltf(filepath=str(gltf_path))
 
             gltf_path.unlink()            

@@ -109,10 +109,17 @@ class Divine_ImportSettings(PropertyGroup):
         default=False
     )
 
+    srgb_colors: BoolProperty(
+        name="sRGB Colors",
+        description="Import mesh color channels as sRGB instead of linear",
+        default=False
+    )
+
     def draw(self, context, obj):
         obj.label(text="GR2 Import Options")
         obj.prop(self, "x_flip_meshes")
         obj.prop(self, "mirror_skeletons")
+        obj.prop(self, "srgb_colors")
 
 
 classes = (

@@ -1,4 +1,5 @@
 from . import helpers
+from bpy.types import ByteColorAttribute
 
 gltf_ext_name = "EXT_lslib_profile"
 LSLIB_GLTF_METADATA_VERSION = 3
@@ -65,6 +66,7 @@ class glTF2ExportUserExtension:
 
 
 class glTF2ImportUserExtension:
+    apply_srgb_fixup = False
     scene_ext = None
     armature = None
 
@@ -103,8 +105,39 @@ class glTF2ImportUserExtension:
         if blender_object.type == 'ARMATURE':
             self.armature = blender_object.data
 
+    def srgb_fixup_color_attribute(self, mesh, attribute, accessor):
+        print(str.format("Fixup color channel {0}.{1}", mesh.name, attribute.name))
+
+        if attribute.domain != 'CORNER':
+            helpers.report(str.format("Unsupported domain {2} on color channel {0}.{1}", mesh.name, attribute.name, attribute.domain), "ERROR")
+            return
+
+        for loop in mesh.loops:
+            attribute.data[loop.index].color_srgb = accessor[loop.vertex_index]
+
+    def srgb_fixup_color_attributes(self, mesh, attributes, accessors):
+        color_attrs = []
+        color_accessors = []
+        for attr, i in attributes.items():
+            if attr[0:6] == 'COLOR_':
+                color_accessors.append(accessors[i])
+        
+        for attr in mesh.attributes:
+            if isinstance(attr, ByteColorAttribute):
+                color_attrs.append(attr)
+
+        if len(color_attrs) != len(color_accessors):
+            helpers.report("Unable to fix glTF sRGB conversion - color attribute count mismatch", "ERROR")
+            return
+        
+        for i in range(0, len(color_attrs)):
+            self.srgb_fixup_color_attribute(mesh, color_attrs[i], color_accessors[i])
 
     def gather_import_mesh_after_hook(self, gltf_mesh, blender_mesh, gltf):
+        if self.apply_srgb_fixup:
+            print("Applying sRGB to linear conversion fixup")
+            self.srgb_fixup_color_attributes(blender_mesh, gltf_mesh.primitives[0].attributes, gltf.accessor_cache)
+
         ls_props = blender_mesh.ls_properties
         if gltf_mesh.extensions is not None and gltf_ext_name in gltf_mesh.extensions:
             ext = gltf_mesh.extensions[gltf_ext_name]
