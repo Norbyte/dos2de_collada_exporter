@@ -3,7 +3,7 @@ from bpy.props import StringProperty, BoolProperty, PointerProperty, CollectionP
 from bpy_extras.io_utils import ExportHelper, ImportHelper
 from bpy.utils import register_class, unregister_class
 
-from . import operators_dae, helpers, collada, divine
+from . import settings, helpers, collada, divine, gltf
 
 import bpy
 import os
@@ -42,7 +42,7 @@ class DIVINITYEXPORTER_OT_export_gltf(Operator, ExportHelper):
     log_message: StringProperty(options={"HIDDEN"})
 
     divine_settings: PointerProperty(
-        type=operators_dae.Divine_ExportSettings,
+        type=settings.Divine_ExportSettings,
         name="GR2 Settings"
     )
 
@@ -180,7 +180,7 @@ class DIVINITYEXPORTER_OT_import_gltf(Operator, ImportHelper):
     )
 
     divine_settings: PointerProperty(
-        type=operators_dae.Divine_ImportSettings,
+        type=settings.Divine_ImportSettings,
         name="GR2 Settings"
     )
 

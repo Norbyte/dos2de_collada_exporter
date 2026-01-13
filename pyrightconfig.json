@@ -1,0 +1,9 @@
+{
+  "include": [
+    "io_scene_dos2de"
+  ],
+
+  "pythonVersion": "3.11",
+
+  "reportInvalidTypeForm": "none"
+}

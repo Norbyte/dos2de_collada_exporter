@@ -20,6 +20,14 @@ def supports_collada():
 
 if "bpy" in locals():
     import importlib
+    if "helpers" in locals():
+        importlib.reload(helpers) # noqa
+    if "properties" in locals():
+        importlib.reload(properties) # noqa
+    if "settings" in locals():
+        importlib.reload(settings) # noqa
+    if "divine" in locals():
+        importlib.reload(divine) # noqa
     if supports_collada():
         if "collada" in locals():
             importlib.reload(collada) # noqa
@@ -27,22 +35,16 @@ if "bpy" in locals():
             importlib.reload(operators_dae) # noqa
         if "export_dae" in locals():
             importlib.reload(export_dae) # noqa
-    if "divine" in locals():
-        importlib.reload(divine) # noqa
     if "gltf" in locals():
         importlib.reload(gltf) # noqa
-    if "helpers" in locals():
-        importlib.reload(helpers) # noqa
     if "operators_gltf" in locals():
         importlib.reload(operators_gltf) # noqa
-    if "properties" in locals():
-        importlib.reload(properties) # noqa
 
 import bpy
 from bpy.types import Operator, AddonPreferences, PropertyGroup, UIList, Panel
 from bpy.props import StringProperty, BoolProperty, FloatProperty, EnumProperty, CollectionProperty, PointerProperty, IntProperty
 
-from . import collada, divine, export_dae, gltf, properties, helpers, operators_dae, operators_gltf
+from . import collada, divine, export_dae, gltf, properties, settings, helpers, operators_dae, operators_gltf
 
 bl_info = {
     "name": "DOS2/BG3 glTF Exporter",
@@ -209,6 +211,7 @@ def register():
         bpy.utils.register_class(cls)
 
     properties.register()
+    settings.register()
     if supports_collada():
         operators_dae.register()
     operators_gltf.register()
@@ -229,10 +232,11 @@ def unregister():
     for cls in classes:
         bpy.utils.unregister_class(cls)
 
-    properties.unregister()
     if supports_collada():
         operators_dae.unregister()
     operators_gltf.unregister()
+    properties.unregister()
+    settings.unregister()
 
     wm = bpy.context.window_manager
     kc = wm.keyconfigs.addon
