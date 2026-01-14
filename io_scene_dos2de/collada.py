@@ -56,6 +56,8 @@ class ColladaMetadataLoader:
         
         mesh = bpy.data.objects[geom.attrib['name']].data
         props = mesh.ls_properties
+        # Collada always loads in sRGB
+        props.vertex_colorspace = "SRGB"
         for ele in list(settings):
             _, _, tag = ele.tag.rpartition('}')
             if tag == 'DivModelType':

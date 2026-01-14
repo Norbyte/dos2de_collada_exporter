@@ -56,6 +56,14 @@ class LSMeshProperties(PropertyGroup):
         name="Cloth Flag 4",
         default = False
         )
+    vertex_colorspace: EnumProperty(
+        name="Vertex Colorspace",
+        description="Colorspace used for importing/exporting vertex colors",
+        items=(("UNSET", "Unset", ""),
+               ("SRGB", "sRGB", "Import/export sRGB vertex colors"),
+               ("LINEAR", "Linear", "Import/export Linear vertex colors")),
+        default=("UNSET")
+    )
     export_order: IntProperty(
         name="Export Order",
         min = 0,
@@ -154,6 +162,7 @@ class OBJECT_PT_LSPropertyPanel(Panel):
             layout.prop(props, "lod_distance")
             layout.prop(props, "export_order")
             layout.prop(props, "parent_bone")
+            layout.prop(props, "vertex_colorspace")
         elif context.active_object.type == "ARMATURE":
             props = context.active_object.data.ls_properties
             layout.prop(props, "skeleton_resource_id")

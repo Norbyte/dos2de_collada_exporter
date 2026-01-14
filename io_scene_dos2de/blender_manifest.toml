@@ -1,7 +1,7 @@
 schema_version = "1.0.0"
 
 id = "io_scene_dos2de"
-version = "3.0.0"
+version = "3.1.0"
 name = "BG3/DOS2 glTF/Collada/GR2 Exporter"
 tagline = "BG3/DOS2 glTF/Collada/GR2 Exporter"
 maintainer = "Norbyte"

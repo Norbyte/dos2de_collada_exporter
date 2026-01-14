@@ -21,6 +21,7 @@ def srgb_to_linearrgb_u16(c):
 
 class glTF2ExportUserExtension:
     apply_srgb_fixup = False
+    apply_mesh_srgb_fixup = False
 
     def __init__(self):
         # We need to wait until we create the gltf2UserExtension to import the gltf2 modules
@@ -80,8 +81,16 @@ class glTF2ExportUserExtension:
             required = False
         )
 
+    def gather_node_mesh_hook(self, gltf_hook_node_mesh, blender_object, export_settings):
+        if blender_object.type == 'MESH':
+            colorspace = blender_object.data.ls_properties.vertex_colorspace
+            if colorspace == 'UNSET':
+                self.apply_mesh_srgb_fixup = self.apply_srgb_fixup
+            else:
+                self.apply_mesh_srgb_fixup = (colorspace == 'SRGB')
+
     def gather_attribute_change(self, attribute, data, is_normalized_byte_color, export_settings):
-        if self.apply_srgb_fixup and attribute.startswith("COLOR_") and is_normalized_byte_color is True:
+        if self.apply_mesh_srgb_fixup and attribute.startswith("COLOR_") and is_normalized_byte_color is True:
             print(str.format("Linear -> sRGB fixup on color channel {0}", attribute))
             if data['data'].dtype == numpy.uint16:
                 for color in data['data']:
@@ -171,6 +180,7 @@ class glTF2ImportUserExtension:
             self.srgb_fixup_color_attributes(blender_mesh, gltf_mesh.primitives[0].attributes, gltf.accessor_cache)
 
         ls_props = blender_mesh.ls_properties
+        ls_props.vertex_colorspace = "SRGB" if self.apply_srgb_fixup else "LINEAR"
         if gltf_mesh.extensions is not None and gltf_ext_name in gltf_mesh.extensions:
             ext = gltf_mesh.extensions[gltf_ext_name]
             ls_props.rigid = ext['Rigid']
