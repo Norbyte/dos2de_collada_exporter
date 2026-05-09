@@ -18,6 +18,18 @@ def srgb_to_linearrgb(c):
 def srgb_to_linearrgb_u16(c):
     return 65535 * srgb_to_linearrgb(c / 65535) + 0.5 # bias for rounding
 
+def linearrgb_to_srgb(c):
+    if c < 0.0031308:
+        if c < 0.0:
+            return 0.0
+        else:
+            return c * 12.92
+    else:
+        return (pow(c, 0.41666) * 1.055) - 0.055
+
+def linearrgb_to_srgb_u16(c):
+    return 65535 * linearrgb_to_srgb(c / 65535) + 0.5 # bias for rounding
+
 
 class glTF2ExportUserExtension:
     apply_srgb_fixup = False
@@ -91,17 +103,17 @@ class glTF2ExportUserExtension:
 
     def gather_attribute_change(self, attribute, data, is_normalized_byte_color, export_settings):
         if self.apply_mesh_srgb_fixup and attribute.startswith("COLOR_") and is_normalized_byte_color is True:
-            print(str.format("Linear -> sRGB fixup on color channel {0}", attribute))
+            print(str.format("Linear -> sRGB fixup on color channel {0}, dtype {1}", attribute, data['data'].dtype))
             if data['data'].dtype == numpy.uint16:
                 for color in data['data']:
-                    color[0] = srgb_to_linearrgb_u16(color[0])
-                    color[1] = srgb_to_linearrgb_u16(color[1])
-                    color[2] = srgb_to_linearrgb_u16(color[2])
+                    color[0] = linearrgb_to_srgb_u16(color[0])
+                    color[1] = linearrgb_to_srgb_u16(color[1])
+                    color[2] = linearrgb_to_srgb_u16(color[2])
             elif data['data'].dtype == numpy.float32:
                 for color in data['data']:
-                    color[0] = srgb_to_linearrgb(color[0])
-                    color[1] = srgb_to_linearrgb(color[1])
-                    color[2] = srgb_to_linearrgb(color[2])
+                    color[0] = linearrgb_to_srgb(color[0])
+                    color[1] = linearrgb_to_srgb(color[1])
+                    color[2] = linearrgb_to_srgb(color[2])
             else:
                 helpers.report(str.format("Unsupported color data type for sRGB conversion: {0}", data['data'].dtype), "ERROR")
 
