@@ -119,7 +119,7 @@ class Divine_ImportSettings(PropertyGroup):
     srgb_colors: BoolProperty(
         name="sRGB Colors",
         description="Import mesh color channels as sRGB instead of linear",
-        default=True
+        default=False
     )
 
     def draw(self, context, obj):

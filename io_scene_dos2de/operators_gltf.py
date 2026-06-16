@@ -216,7 +216,7 @@ class DIVINITYEXPORTER_OT_import_gltf(Operator, ImportHelper):
                 return {'CANCELLED'}
 
             gltf.glTF2ImportUserExtension.apply_srgb_fixup = self.divine_settings.srgb_colors
-            bpy.ops.import_scene.gltf(filepath=str(gltf_path))
+            bpy.ops.import_scene.gltf(filepath=str(gltf_path), disable_bone_shape=True)
 
             gltf_path.unlink()            
             helpers.report("Import completed successfully.", "INFO")
