@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 import subprocess
 import bpy
 from . import helpers
@@ -71,7 +72,11 @@ class DivineInvoker:
         print("Commandline: {}".format(args))
 
         try:
-            process = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+            divine_path = Path(self.addon_prefs.lslib_path)
+            dll_dir = divine_path.parent.parent
+            env_lslib = os.environ.copy()
+            env_lslib["PATH"] = str(dll_dir) + os.pathsep + env_lslib.get("PATH", "")
+            process = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, env=env_lslib)
         except OSError as e:
             helpers.report("Failed to launch lslib: " + str(e), "ERROR")
             return False
